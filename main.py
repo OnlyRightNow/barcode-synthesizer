@@ -16,25 +16,51 @@ def rotate_image(img, angle):
     dst = cv2.warpAffine(out, M, (cols, rows), borderValue=(255, 255, 255))
     return dst
 
-def tilt_image(img, alpha, beta):
-    # https://stackoverflow.com/questions/33497736/opencv-adjusting-photo-with-skew-angle-tilt
-    # https://stackoverflow.com/questions/17087446/how-to-calculate-perspective-transform-for-opencv-from-rotation-angles
 
-    rows, cols, ch = img.shape
-    pts1 = np.float32(
-        [[cols * .25, rows * .95],
-         [cols * .90, rows * .95],
-         [cols * .10, 0],
-         [cols, 0]]
-    )
-    pts2 = np.float32(
-        [[cols * 0.1, rows],
-         [cols, rows],
-         [0, 0],
-         [cols, 0]]
-    )
-    M = cv2.getPerspectiveTransform(pts1, pts2)
-    dst = cv2.warpPerspective(img, M, (cols, rows))
+def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
+    """
+    coordinate system:
+    y
+    ^
+    |
+    |
+    |z(pointing inwards)--------->x
+
+    :param input: image
+    :param alpha: rotation angle around x-axis
+    :param beta: rotation angle around y-axis
+    :param gamma: rotation angle around z-axis
+    :param dx: translation in x-axis
+    :param dy: translation in y-axis
+    :param dz: translation in z-axis (recommended value: 200)
+    :param f: focal distance of camera (recommended value: 200)
+    :return: rotated, moved image
+    """
+    # convert to radians
+    alpha = alpha*np.pi/180.0
+    beta = beta*np.pi/180.0
+    gamma = gamma*np.pi/180.0
+    rows, cols, ch = input.shape
+    w = cols
+    h = rows
+    # projection 2D-->3D
+    A1 = [[1, 0, -w/2], [0, 1, -h/2], [0, 0, 0], [0, 0, 1]]
+    # rotation matrices
+    Rx = [[1, 0, 0, 0], [0, np.cos(alpha), -np.sin(alpha), 0], [0, np.sin(alpha), np.cos(alpha), 0], [0, 0, 0, 1]]
+    Ry = [[np.cos(beta), 0, -np.sin(beta), 0], [0, 1, 0, 0], [np.sin(beta), 0, np.cos(beta), 0], [0, 0, 0, 1]]
+    Rz = [[np.cos(gamma), -np.sin(gamma), 0, 0], [np.sin(gamma), np.cos(gamma), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+    # composed rotation matrix
+    tmp = np.dot(Rx, Ry)
+    R = np.dot(tmp, Rz)
+    # translation matrix
+    T = [[1, 0, 0, dx], [0, 1, 0, dy], [0, 0, 1, dz], [0, 0, 0, 1]]
+    # 3D-->2D matrix
+    A2 = [[f, 0, w/2, 0], [0, f, h/2, 0], [0, 0, 1, 0]]
+    # final transformation matrix
+    tmp1 = np.dot(R, A1)
+    tmp2 = np.dot(T, tmp1)
+    trans = np.dot(A2, tmp2)
+    dst = cv2.warpPerspective(img, trans, (cols, rows), cv2.INTER_LANCZOS4)
     return dst
 
 
@@ -121,8 +147,9 @@ if __name__ == '__main__':
     coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
     out[coords] = 0
 
-    out = rotate_image(out, -5)
+    #out = rotate_image(out, -5)
+    out = rotate3DImage(out, 10, 10, 5, 0, 0, 200, 200)
+    # contrast
 
-    out = tilt_image(out, 1, 1)
-
+    # brightness
     cv2.imwrite('./output/example.png', out)
