@@ -2,6 +2,7 @@ import barcode
 from barcode.writer import ImageWriter
 import numpy as np
 import cv2
+import random as rn
 from matplotlib import pyplot as plt
 
 
@@ -135,6 +136,8 @@ def demo():
 
 
 if __name__ == '__main__':
+    seed = 42
+    #rn.seed(seed)
     # create barcodes
     varCode128 = barcode.get_barcode_class('code128')
     code128 = varCode128("example", writer=ImageWriter())
@@ -163,9 +166,13 @@ if __name__ == '__main__':
     out[coords] = 0
 
     # rotate image
-    out = rotate3DImage(out, 10, 10, 10, 0, 0, 200, 200)
+    out = rotate3DImage(out, rn.uniform(-10, 10), rn.uniform(-10, 10),
+                        rn.uniform(-5, 5), 0, 0, 200, 200)
 
     # contrast and brightness
-    out = change_contrast_brightness(out, 1, 0)
+    out = change_contrast_brightness(out, rn.uniform(0.5, 2), rn.uniform(-127, 127))
+
+    # motion blur
+    out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
 
     cv2.imwrite('./output/example.png', out)
