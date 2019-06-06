@@ -64,29 +64,19 @@ def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
     return dst
 
 
-def change_brightness(img, value):
+def change_contrast_brightness(img, alpha, beta):
     """
-    :param img: image to change brightness
-    :param value: value to change brightness, if not within [-255, 255] then will be changed to fit into interval
-    :return: image with changed brightness
+    changes the image with: alpha(pixel_value) + beta
+    alpha 1  beta 0      --> no change
+    0 < alpha < 1        --> lower contrast
+    alpha > 1            --> higher contrast
+    -127 < beta < +127   --> good range for brightness values
+    :param img: image to change contrast and brightness
+    :param alpha: contrast factor
+    :param beta: value of brightness change
+    :return: image with changed contrast and brightness
     """
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    if value >= 0:
-        # increase brightness
-        h, s, v = cv2.split(hsv)
-        lim = 255 - value
-        v[v > lim] = 255
-        v[v <= lim] += value
-        final_hsv = cv2.merge((h, s, v))
-        dst = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
-    elif value < 0:
-        # decrease brightness
-        if value < -255:
-            value = -255
-        factor = (255 + value)/255
-        hsv[..., 2] = hsv[..., 2] * factor
-        dst = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-    return dst
+    return cv2.addWeighted(img, alpha, np.zeros(img.shape, img.dtype), 0, beta)
 
 
 def demo():
@@ -156,7 +146,7 @@ if __name__ == '__main__':
         code128.save(filename)
 
     img = cv2.imread('./output/example.png')
-    # blur
+    # blur e.g. from printing
     blur = cv2.blur(img, (2, 2))
     # salt and pepper noise
     row, col, ch = blur.shape
@@ -172,12 +162,10 @@ if __name__ == '__main__':
     coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
     out[coords] = 0
 
-    # out = rotate_image(out, -5)
+    # rotate image
     out = rotate3DImage(out, 10, 10, 10, 0, 0, 200, 200)
 
-    # contrast
-
-    # brightness
-    out = change_brightness(out, -10)
+    # contrast and brightness
+    out = change_contrast_brightness(out, 1, 0)
 
     cv2.imwrite('./output/example.png', out)
