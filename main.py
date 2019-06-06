@@ -26,7 +26,7 @@ def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
     |
     |z(pointing inwards)--------->x
 
-    :param input: image
+    :param input: image to rotate
     :param alpha: rotation angle around x-axis
     :param beta: rotation angle around y-axis
     :param gamma: rotation angle around z-axis
@@ -61,6 +61,31 @@ def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
     tmp2 = np.dot(T, tmp1)
     trans = np.dot(A2, tmp2)
     dst = cv2.warpPerspective(img, trans, (cols, rows), cv2.INTER_LANCZOS4)
+    return dst
+
+
+def change_brightness(img, value):
+    """
+    :param img: image to change brightness
+    :param value: value to change brightness, if not within [-255, 255] then will be changed to fit into interval
+    :return: image with changed brightness
+    """
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    if value >= 0:
+        # increase brightness
+        h, s, v = cv2.split(hsv)
+        lim = 255 - value
+        v[v > lim] = 255
+        v[v <= lim] += value
+        final_hsv = cv2.merge((h, s, v))
+        dst = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+    elif value < 0:
+        # decrease brightness
+        if value < -255:
+            value = -255
+        factor = (255 + value)/255
+        hsv[..., 2] = hsv[..., 2] * factor
+        dst = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
     return dst
 
 
@@ -147,9 +172,12 @@ if __name__ == '__main__':
     coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
     out[coords] = 0
 
-    #out = rotate_image(out, -5)
-    out = rotate3DImage(out, 10, 10, 5, 0, 0, 200, 200)
+    # out = rotate_image(out, -5)
+    out = rotate3DImage(out, 10, 10, 10, 0, 0, 200, 200)
+
     # contrast
 
     # brightness
+    out = change_brightness(out, -10)
+
     cv2.imwrite('./output/example.png', out)
