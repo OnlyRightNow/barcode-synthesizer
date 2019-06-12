@@ -3,6 +3,7 @@ from barcode.writer import ImageWriter
 import numpy as np
 import cv2
 import random as rn
+import datetime
 from matplotlib import pyplot as plt
 
 
@@ -137,13 +138,17 @@ def demo():
 
 if __name__ == '__main__':
     seed = 42
+    dataset_size = 10
     rn.seed(seed)
     # create barcodes
     varCode128 = barcode.get_barcode_class('code128')
     # create textfile to put values of the codes in it
     textfile = open("./output/values.txt", "w+")
-
-    for i in range(0, 10):
+    # write information of dataset
+    textfile.write("===This dataset contains %i images and was created with random seed: %i on the %s===\n"
+                   % (dataset_size, seed, str(datetime.datetime.now())[:19]))
+    textfile.write("===For more information go to: https://github.com/OnlyRightNow/barcode-synthesizer===\n")
+    for i in range(0, dataset_size):
         # create random value with n digits
         value = str(random_with_n_digits(10))
         code128 = varCode128(value, writer=ImageWriter())
@@ -175,5 +180,9 @@ if __name__ == '__main__':
         # motion blur
         out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
         cv2.imwrite("%s.png" % filename, out)
+    # write information of dataset
+    textfile.write("===This dataset contains %i images and was created with random seed: %i on the %s===\n"
+                   % (dataset_size, seed, str(datetime.datetime.now())[:19]))
+    textfile.write("===For more information go to: https://github.com/OnlyRightNow/barcode-synthesizer===\n")
     # close textfile
     textfile.close()
