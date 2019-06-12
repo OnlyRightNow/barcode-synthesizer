@@ -6,18 +6,6 @@ import random as rn
 from matplotlib import pyplot as plt
 
 
-def rotate_image(img, angle):
-    """
-    :param img: image to rotate
-    :param angle: rotating angle
-    :return: rotated image with white background
-    """
-    rows, cols, ch = img.shape
-    M = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
-    dst = cv2.warpAffine(out, M, (cols, rows), borderValue=(255, 255, 255))
-    return dst
-
-
 def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
     """
     coordinate system:
@@ -80,6 +68,18 @@ def change_contrast_brightness(img, alpha, beta):
     return cv2.addWeighted(img, alpha, np.zeros(img.shape, img.dtype), 0, beta)
 
 
+def random_with_n_digits(n):
+    # TODO: make sure radint has even distribution of numbers
+    """
+
+    :param n:
+    :return:
+    """
+    range_start = 10**(n-1)
+    range_end = (10**n)-1
+    return rn.randint(range_start, range_end)
+
+
 def demo():
     img = cv2.imread('./output/example.png')
 
@@ -137,42 +137,43 @@ def demo():
 
 if __name__ == '__main__':
     seed = 42
-    #rn.seed(seed)
+    rn.seed(seed)
     # create barcodes
     varCode128 = barcode.get_barcode_class('code128')
-    code128 = varCode128("example", writer=ImageWriter())
-    code128.save("./output/example")
-    for i in range(0, 5):
-        value = "%i" % i
+    # create textfile to put values of the codes in it
+    textfile = open("./output/values.txt", "w+")
+
+    for i in range(0, 10):
+        # create random value with n digits
+        value = str(random_with_n_digits(10))
         code128 = varCode128(value, writer=ImageWriter())
-        filename = "./output/%s" % value
+        filename = "./output/%s" % i
         code128.save(filename)
+        textfile.write("%s \n" % value)
 
-    img = cv2.imread('./output/example.png')
-    # blur e.g. from printing
-    blur = cv2.blur(img, (2, 2))
-    # salt and pepper noise
-    row, col, ch = blur.shape
-    s_vs_p = 0.5
-    amount = 0.004
-    out = np.copy(blur)
-    # Salt mode
-    num_salt = np.ceil(amount * img.size * s_vs_p)
-    coords = [np.random.randint(0, i - 1, int(num_salt)) for i in img.shape]
-    out[coords] = 1
-    # Pepper mode
-    num_pepper = np.ceil(amount * img.size * (1. - s_vs_p))
-    coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
-    out[coords] = 0
-
-    # rotate image
-    out = rotate3DImage(out, rn.uniform(-10, 10), rn.uniform(-10, 10),
-                        rn.uniform(-5, 5), 0, 0, 200, 200)
-
-    # contrast and brightness
-    out = change_contrast_brightness(out, rn.uniform(0.5, 2), rn.uniform(-127, 127))
-
-    # motion blur
-    out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
-
-    cv2.imwrite('./output/example.png', out)
+        img = cv2.imread("%s.png" % filename)
+        # blur e.g. from printing
+        blur = cv2.blur(img, (2, 2))
+        # salt and pepper noise
+        row, col, ch = blur.shape
+        s_vs_p = 0.5
+        amount = 0.004
+        out = np.copy(blur)
+        # Salt mode
+        num_salt = np.ceil(amount * img.size * s_vs_p)
+        coords = [np.random.randint(0, i - 1, int(num_salt)) for i in img.shape]
+        out[coords] = 1
+        # Pepper mode
+        num_pepper = np.ceil(amount * img.size * (1. - s_vs_p))
+        coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
+        out[coords] = 0
+        # rotate image
+        out = rotate3DImage(out, rn.uniform(-10, 10), rn.uniform(-10, 10),
+                            rn.uniform(-5, 5), 0, 0, 200, 200)
+        # contrast and brightness
+        out = change_contrast_brightness(out, rn.uniform(0.7, 2), rn.uniform(-127, 127))
+        # motion blur
+        out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
+        cv2.imwrite("%s.png" % filename, out)
+    # close textfile
+    textfile.close()
