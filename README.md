@@ -7,14 +7,6 @@ So I started writing a script that creates such a dataset with a barcode generat
 rotates the barcodes in the 3D-plane, adds noise, changes brightness and intensity 
 and adds blurring.<br /> 
 The goal is to reduce the reality gap as much as possible.
-## Build status
-Build status of continus integration i.e. travis, appveyor etc. Ex. - 
-
-[![Build Status](https://travis-ci.org/akashnimare/foco.svg?branch=master)](https://travis-ci.org/akashnimare/foco)
-[![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/akashnimare/foco?branch=master&svg=true)](https://ci.appveyor.com/project/akashnimare/foco/branch/master)
- 
-## Screenshots
-Include logo/demo screenshot etc.
 
 ## Requirements
 - Python 3.5 or above
