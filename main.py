@@ -1,13 +1,14 @@
-import barcode
-from barcode.writer import ImageWriter
-import numpy as np
-import cv2
-import random as rn
 import datetime
+import os
+import random as rn
+
+import barcode
+import cv2
+import numpy as np
+from barcode.writer import ImageWriter
 from matplotlib import pyplot as plt
 
 import settings
-import os
 
 
 def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
@@ -150,6 +151,9 @@ if __name__ == '__main__':
         seed = str(settings.seed)
     # create barcodes
     varCode128 = barcode.get_barcode_class('code128')
+    # create output directory if needed
+    if not os.path.exists("./output"):
+        os.makedirs("./output")
     # create textfile to put values of the codes in it
     textfile = open("./output/values.txt", "w+")
     # write information of dataset
