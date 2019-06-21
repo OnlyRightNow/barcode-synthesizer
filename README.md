@@ -2,7 +2,7 @@
 
 <a href="https://github.com/OnlyRightNow/barcode-synthesizer/blob/master/LICENSE.md"><img src="https://img.shields.io/pypi/l/python-barcode.svg" title="License" alt="License"></a>
   
-Creates a set of realistically looking barcodes images and a textfile containing the values.
+Creates a set of realistically looking barcode images and a textfile containing the values.
 
 ## Motivation
 There is a lack of useful barcodes datasets e.g. for training a barcode-decoder network.<br /> 
@@ -18,7 +18,7 @@ The goal is to reduce the reality gap as much as possible.
 - Python 3.5 or above
 - [python-barcode](https://github.com/WhyNotHugo/python-barcode)
 
-## Provided Barcodes
+## Supported Barcodes
 * EAN-8
 * EAN-13
 * EAN-14

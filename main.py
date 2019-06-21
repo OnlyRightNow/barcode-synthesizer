@@ -7,6 +7,7 @@ import datetime
 from matplotlib import pyplot as plt
 
 import settings
+import os
 
 
 def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
@@ -32,7 +33,7 @@ def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
     alpha = alpha*np.pi/180.0
     beta = beta*np.pi/180.0
     gamma = gamma*np.pi/180.0
-    rows, cols, ch = input.shape
+    rows, cols = input.shape
     w = cols
     h = rows
     # projection 2D-->3D
@@ -76,15 +77,17 @@ def random_with_n_digits(n):
     """
 
     :param n:
-    :return:
+    :return: string with n-digit number including 0 in the first digit e.g. 0142
     """
-    range_start = 10**(n-1)
-    range_end = (10**n)-1
-    return rn.randint(range_start, range_end)
+    stringList = []
+    for x in range(n):
+        stringList.append(str(rn.randint(0, 9)))
+    string = ''.join(stringList)
+    return string
 
 
 def demo():
-    img = cv2.imread('./output/example.png')
+    img = cv2.imread('./example.png')
 
     # blur
     blur = cv2.blur(img, (3, 3))
@@ -123,9 +126,9 @@ def demo():
     gauss = gauss.reshape(row, col, ch)
     speckle = img + img * gauss
 
-    plt.subplot(321), plt.imshow(img),plt.title('Original')
+    plt.subplot(321), plt.imshow(img), plt.title('Original')
     plt.xticks([]), plt.yticks([])
-    plt.subplot(322), plt.imshow(blur),plt.title('Blurred')
+    plt.subplot(322), plt.imshow(blur), plt.title('Blurred')
     plt.xticks([]), plt.yticks([])
     plt.subplot(323), plt.imshow(gauss_noise),plt.title('Gaussian Noise')
     plt.xticks([]), plt.yticks([])
@@ -140,7 +143,7 @@ def demo():
 
 if __name__ == '__main__':
 
-    rn.seed(settings.seed)
+    #rn.seed(settings.seed)
     # create barcodes
     varCode128 = barcode.get_barcode_class('code128')
     # create textfile to put values of the codes in it
@@ -151,13 +154,20 @@ if __name__ == '__main__':
     textfile.write("===For more information go to: https://github.com/OnlyRightNow/barcode-synthesizer===\n")
     for i in range(0, settings.dataset_size):
         # create random value with n digits
-        value = str(random_with_n_digits(10))
+        value = random_with_n_digits(settings.n_digits)
         code128 = varCode128(value, writer=ImageWriter())
-        filename = "./output/%s" % i
-        code128.save(filename)
+        if not os.path.exists("./output/%i" % int(value)):
+            os.makedirs("./output/%i" % int(value))
+        filename = "./output/%i/%s_%s" % (int(value), i, value)
+        if settings.show_text:
+            code128.save(filename)
+        else:
+            code128.save(filename, text=" ")
+        # write value to textfile
         textfile.write("%s \n" % value)
 
-        # img = cv2.imread("%s.png" % filename)
+        img = cv2.imread("%s.png" % filename, cv2.IMREAD_GRAYSCALE)
+        out = img[30:160, 20:150]
         # # blur e.g. from printing
         # blur = cv2.blur(img, (2, 2))
         # # salt and pepper noise
@@ -174,13 +184,12 @@ if __name__ == '__main__':
         # coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
         # out[coords] = 0
         # # rotate image
-        # out = rotate3DImage(out, rn.uniform(-10, 10), rn.uniform(-10, 10),
-        #                     rn.uniform(-5, 5), 0, 0, 200, 200)
+        out = rotate3DImage(out, rn.uniform(-10, 10), rn.uniform(-10, 10), rn.uniform(-5, 5), 0, 0, 200, 200)
         # # contrast and brightness
         # out = change_contrast_brightness(out, rn.uniform(0.7, 2), rn.uniform(-127, 127))
         # # motion blur
         # out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
-        # cv2.imwrite("%s.png" % filename, out)
+        cv2.imwrite("%s.png" % filename, out)
     # write information of dataset
     textfile.write("===This dataset contains %i images and was created with random seed: %i on the %s===\n"
                    % (settings.dataset_size, settings.seed, str(datetime.datetime.now())[:19]))
