@@ -1,5 +1,5 @@
 # random generator seed
-seed = 123
+seed = None
 # size of dataset i.e. number of generated barcodes
 dataset_size = 100
 # number of digits on barcode
