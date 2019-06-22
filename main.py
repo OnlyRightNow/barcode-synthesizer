@@ -19,7 +19,6 @@ def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
     |
     |
     |z(pointing inwards)--------->x
-
     :param input: image to rotate
     :param alpha: rotation angle around x-axis
     :param beta: rotation angle around y-axis
@@ -34,7 +33,7 @@ def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
     alpha = alpha*np.pi/180.0
     beta = beta*np.pi/180.0
     gamma = gamma*np.pi/180.0
-    rows, cols = input.shape
+    rows, cols, ch = input.shape
     w = cols
     h = rows
     # projection 2D-->3D
@@ -76,7 +75,6 @@ def change_contrast_brightness(img, alpha, beta):
 def random_with_n_digits(n):
     # TODO: make sure radint has even distribution of numbers
     """
-
     :param n:
     :return: string with n-digit number including 0 in the first digit e.g. 0142
     """
@@ -88,11 +86,9 @@ def random_with_n_digits(n):
 
 
 def demo():
-    img = cv2.imread('./example.png')
-
+    img = cv2.imread('./output/example.png')
     # blur
     blur = cv2.blur(img, (3, 3))
-
     # gaussian noise
     row, col, ch = img.shape
     mean = 0
@@ -101,7 +97,6 @@ def demo():
     gauss = np.random.normal(mean, sigma, (row, col, ch))
     gauss = gauss.reshape(row, col, ch)
     gauss_noise = img + gauss
-
     # salt and pepper noise
     row, col, ch = img.shape
     s_vs_p = 0.5
@@ -115,21 +110,18 @@ def demo():
     num_pepper = np.ceil(amount * img.size * (1. - s_vs_p))
     coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
     out[coords] = 0
-
     # poisson noise
     vals = len(np.unique(img))
     vals = 2 ** np.ceil(np.log2(vals))
     poisson = np.random.poisson(img * vals) / float(vals)
-
     # speckle noise
     row, col, ch = img.shape
     gauss = np.random.randn(row, col, ch)
     gauss = gauss.reshape(row, col, ch)
     speckle = img + img * gauss
-
-    plt.subplot(321), plt.imshow(img), plt.title('Original')
+    plt.subplot(321), plt.imshow(img),plt.title('Original')
     plt.xticks([]), plt.yticks([])
-    plt.subplot(322), plt.imshow(blur), plt.title('Blurred')
+    plt.subplot(322), plt.imshow(blur),plt.title('Blurred')
     plt.xticks([]), plt.yticks([])
     plt.subplot(323), plt.imshow(gauss_noise),plt.title('Gaussian Noise')
     plt.xticks([]), plt.yticks([])
@@ -143,13 +135,12 @@ def demo():
 
 
 if __name__ == '__main__':
-
     if settings.seed is None:
         seed = "None"
     else:
         rn.seed(settings.seed)
         seed = str(settings.seed)
-    # create barcodes
+
     varCode128 = barcode.get_barcode_class('code128')
     # create output directory if needed
     if not os.path.exists("./output"):
@@ -162,19 +153,12 @@ if __name__ == '__main__':
     textfile.write("===For more information go to: https://github.com/OnlyRightNow/barcode-synthesizer===\n")
     for i in range(0, settings.dataset_size):
         # create random value with n digits
-        value = random_with_n_digits(settings.n_digits)
+        value = str(random_with_n_digits(settings.n_digits))
         code128 = varCode128(value, writer=ImageWriter())
-        if not os.path.exists("./output/%i" % int(value)):
-            os.makedirs("./output/%i" % int(value))
-        filename = "./output/%i/%s_%s" % (int(value), i, value)
-        if settings.show_text:
-            code128.save(filename)
-        else:
-            code128.save(filename, text=" ")
-        # write value to textfile
+        filename = "./output/%s_%s" % (i, value)
+        code128.save(filename)
         textfile.write("%s \n" % value)
-
-        img = cv2.imread("%s.png" % filename, cv2.IMREAD_GRAYSCALE)
+        img = cv2.imread("%s.png" % filename)
         out = img[30:160, 20:150]
         # # blur e.g. from printing
         # blur = cv2.blur(img, (2, 2))
@@ -192,14 +176,15 @@ if __name__ == '__main__':
         # coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
         # out[coords] = 0
         # # rotate image
-        out = rotate3DImage(out, rn.uniform(-10, 10), rn.uniform(-10, 10), rn.uniform(-5, 5), 0, 0, 200, 200)
+        out = rotate3DImage(out, rn.uniform(-10, 10), rn.uniform(-10, 10),
+                            rn.uniform(-5, 5), 0, 0, 200, 200)
         # # contrast and brightness
-        # out = change_contrast_brightness(out, rn.uniform(0.7, 2), rn.uniform(-127, 127))
+        out = change_contrast_brightness(out, rn.uniform(0.7, 2), rn.uniform(-127, 127))
         # # motion blur
-        # out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
+        out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
         cv2.imwrite("%s.png" % filename, out)
     # write information of dataset
-    textfile.write("===This dataset contains %i images and was created with random seed: %s on the %s===\n"
+    textfile.write("===This dataset contains %i images and was created with random seed: [%s] on the %s===\n"
                    % (settings.dataset_size, seed, str(datetime.datetime.now())[:19]))
     textfile.write("===For more information go to: https://github.com/OnlyRightNow/barcode-synthesizer===\n")
     # close textfile
