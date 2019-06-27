@@ -1,8 +1,8 @@
 # random generator seed
-seed = 21
+seed = 42
 # size of dataset i.e. number of generated barcodes
-dataset_size = 100
+dataset_size = 10
 # number of digits on barcode
-n_digits = 1
+n_digits = 8
 # show text/numbers below barcode
-show_text = True
+show_text = False
