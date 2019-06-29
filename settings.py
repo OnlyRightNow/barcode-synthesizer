@@ -5,4 +5,4 @@ dataset_size = 10
 # number of digits on barcode
 n_digits = 8
 # show text/numbers below barcode
-show_text = False
+show_text = True

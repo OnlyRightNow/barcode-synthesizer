@@ -157,37 +157,38 @@ if __name__ == '__main__':
         if settings.show_text:
             text = value
         else:
+            # TODO: make sure no text is printed below the barcode (doesn't work yet)
             text = " "
-        code128 = varCode128(text, writer=ImageWriter())
+        code128 = varCode128(value, writer=ImageWriter())
         filename = "./output/%s_%s" % (i, value)
         code128.save(filename)
         textfile.write("%s \n" % value)
         img = cv2.imread("%s.png" % filename)
-        #out = img[10:190, 20:200]#20:150
+        out = img[10:190, 10:230]#20:150
         # blur e.g. from printing
-        blur = cv2.blur(img, (2, 2))
-        # salt and pepper noise
-        row, col, ch = blur.shape
-        s_vs_p = 0.5
-        amount = 0.004
-        out = np.copy(blur)
-        # Salt mode
-        num_salt = np.ceil(amount * img.size * s_vs_p)
-        coords = [np.random.randint(0, i - 1, int(num_salt)) for i in img.shape]
-        out[coords] = 1
-        # Pepper mode
-        num_pepper = np.ceil(amount * img.size * (1. - s_vs_p))
-        coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
-        out[coords] = 0
-        # rotate image
-        out = rotate3DImage(out, rn.uniform(-10, 10), rn.uniform(-10, 10),
-                            rn.uniform(-5, 5), 0, 0, 200, 200)
-        # contrast and brightness
-        #out = change_contrast_brightness(out, rn.uniform(0.7, 2), rn.uniform(-127, 127))
-        # motion blur
-        #out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
-        out = cv2.resize(out, (200, 200))
-        cv2.imwrite("%s.png" % filename, out)
+        # blur = cv2.blur(img, (2, 2))
+        # # salt and pepper noise
+        # row, col, ch = blur.shape
+        # s_vs_p = 0.5
+        # amount = 0.004
+        # out = np.copy(blur)
+        # # Salt mode
+        # num_salt = np.ceil(amount * img.size * s_vs_p)
+        # coords = [np.random.randint(0, i - 1, int(num_salt)) for i in img.shape]
+        # out[coords] = 1
+        # # Pepper mode
+        # num_pepper = np.ceil(amount * img.size * (1. - s_vs_p))
+        # coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
+        # out[coords] = 0
+        # # rotate image
+        # out = rotate3DImage(out, rn.uniform(-10, 10), rn.uniform(-10, 10),
+        #                     rn.uniform(-5, 5), 0, 0, 200, 200)
+        # # contrast and brightness
+        # out = change_contrast_brightness(out, rn.uniform(0.7, 2), rn.uniform(-127, 127))
+        # # motion blur
+        # out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
+        img2 = cv2.resize(out, (130, 130))
+        cv2.imwrite("%s.png" % filename, img2)
     # write information of dataset
     textfile.write("===This dataset contains %i images and was created with random seed: [%s] on the %s===\n"
                    % (settings.dataset_size, seed, str(datetime.datetime.now())[:19]))
