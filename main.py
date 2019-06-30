@@ -152,6 +152,7 @@ if __name__ == '__main__':
                    % (settings.dataset_size, seed, str(datetime.datetime.now())[:19]))
     textfile.write("===For more information go to: https://github.com/OnlyRightNow/barcode-synthesizer===\n")
     for i in range(0, settings.dataset_size):
+
         # create random value with n digits
         value = str(random_with_n_digits(settings.n_digits))
         if settings.show_text:
@@ -164,7 +165,8 @@ if __name__ == '__main__':
         code128.save(filename)
         textfile.write("%s \n" % value)
         img = cv2.imread("%s.png" % filename)
-        out = img[10:190, 10:230]#20:150
+        #out = img[10:190, 10:230]#20:150
+        out = img[10:190, 10:240]
         # blur e.g. from printing
         # blur = cv2.blur(img, (2, 2))
         # # salt and pepper noise
@@ -187,8 +189,8 @@ if __name__ == '__main__':
         # out = change_contrast_brightness(out, rn.uniform(0.7, 2), rn.uniform(-127, 127))
         # # motion blur
         # out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
-        img2 = cv2.resize(out, (130, 130))
-        cv2.imwrite("%s.png" % filename, img2)
+        img2 = cv2.resize(out, settings.image_size)
+        cv2.imwrite("%s.png" % filename, out)
     # write information of dataset
     textfile.write("===This dataset contains %i images and was created with random seed: [%s] on the %s===\n"
                    % (settings.dataset_size, seed, str(datetime.datetime.now())[:19]))
