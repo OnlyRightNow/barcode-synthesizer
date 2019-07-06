@@ -28,6 +28,9 @@ def rotate3DImage(input, alpha, beta, gamma, dx, dy, dz, f):
     :param dz: translation in z-axis (recommended value: 200)
     :param f: focal distance of camera (recommended value: 200)
     :return: rotated, moved image
+
+    more information can be found: http://jepsonsblog.blogspot.com/2012/11/rotation-in-3d-using-opencvs.html
+                                   https://stackoverflow.com/questions/17087446/how-to-calculate-perspective-transform-for-opencv-from-rotation-angles
     """
     # convert to radians
     alpha = alpha*np.pi/180.0
@@ -165,8 +168,8 @@ if __name__ == '__main__':
         code128.save(filename)
         textfile.write("%s \n" % value)
         img = cv2.imread("%s.png" % filename)
-        #out = img[10:190, 10:230]#20:150
-        out = img[10:190, 10:240]
+        out = img[10:190, 10:230]#20:150
+        #out = img[10:190, 10:190]
         # blur e.g. from printing
         # blur = cv2.blur(img, (2, 2))
         # # salt and pepper noise

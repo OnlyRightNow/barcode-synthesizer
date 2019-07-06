@@ -11,7 +11,7 @@ rotates the barcodes in the 3D-plane, adds noise, changes brightness and intensi
 and adds blurring.<br /> 
 The goal is to reduce the reality gap as much as possible.
 
-<a href="https://github.com/OnlyRightNow/barcode-synthesizer/blob/master/output/example.png"><img src="https://github.com/OnlyRightNow/barcode-synthesizer/blob/master/output/example.png?raw=true" title="example" alt="example"></a>
+<a href="https://github.com/OnlyRightNow/barcode-synthesizer/blob/master/example.png"><img src="https://github.com/OnlyRightNow/barcode-synthesizer/blob/master/output/example.png?raw=true" title="example" alt="example"></a>
 
 
 ## Requirements
