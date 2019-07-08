@@ -1,6 +1,7 @@
 import datetime
 import os
 import random as rn
+import sys
 
 import barcode
 import cv2
@@ -88,6 +89,18 @@ def random_with_n_digits(n):
     return string
 
 
+def drawProgressBar(percent, barLen = 20):
+    sys.stdout.write("\r")
+    progress = ""
+    for i in range(barLen):
+        if i < int(barLen * percent):
+            progress += "="
+        else:
+            progress += " "
+    sys.stdout.write("[ %s ] %.2f%%" % (progress, percent * 100))
+    sys.stdout.flush()
+
+
 def demo():
     img = cv2.imread('./output/example.png')
     # blur
@@ -155,7 +168,7 @@ if __name__ == '__main__':
                    % (settings.dataset_size, seed, str(datetime.datetime.now())[:19]))
     textfile.write("===For more information go to: https://github.com/OnlyRightNow/barcode-synthesizer===\n")
     for i in range(0, settings.dataset_size):
-
+        drawProgressBar((i+1)/settings.dataset_size)
         # create random value with n digits
         value = str(random_with_n_digits(settings.n_digits))
         if settings.show_text:
