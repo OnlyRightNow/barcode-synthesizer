@@ -181,7 +181,7 @@ if __name__ == '__main__':
         code128.save(filename)
         textfile.write("%s \n" % value)
         img = cv2.imread("%s.png" % filename)
-        out = img[10:190, 10:230]#20:150
+        out = img[10:220, 10:230]#20:150
         #out = img[10:190, 10:190]
         # blur e.g. from printing
         # blur = cv2.blur(img, (2, 2))
@@ -206,7 +206,7 @@ if __name__ == '__main__':
         # # motion blur
         # out = cv2.blur(out, (rn.randrange(1, 3), rn.randrange(1, 10)))
         img2 = cv2.resize(out, settings.image_size)
-        cv2.imwrite("%s.png" % filename, out)
+        cv2.imwrite("%s.png" % filename, img2)
     # write information of dataset
     textfile.write("===This dataset contains %i images and was created with random seed: [%s] on the %s===\n"
                    % (settings.dataset_size, seed, str(datetime.datetime.now())[:19]))
